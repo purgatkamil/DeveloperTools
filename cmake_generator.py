@@ -1,6 +1,40 @@
 import os
 import subprocess
+import shutil
 from tkinter import filedialog, Tk, messagebox
+
+def copy_files_to_output_directory(output_file_path):
+
+    # Pobierz ścieżkę bieżącego katalogu
+    current_directory = os.path.dirname(os.path.abspath(__file__))
+
+    # Utwórz ścieżkę do katalogu o jeden poziom niżej
+    target_directory = os.path.abspath(os.path.join(current_directory, os.pardir))
+
+    print(target_directory)
+
+    # Pobierz ścieżkę folderu docelowego, gdzie ma być zapisany plik CMakeLists.txt
+    output_directory = os.path.dirname(output_file_path)
+    
+    # Ścieżki plików źródłowych do skopiowania
+    source_files = ["compiler_flags.cmake", "gcc-arm-none-eabi.cmake", "Makefile"]
+    
+    for source_file in source_files:
+        source_path = os.path.join("", source_file)
+        destination_path = os.path.join(output_directory, source_file)
+        
+        # Sprawdź, czy plik już istnieje w folderze docelowym
+        if os.path.exists(destination_path):
+            print(f"Ostrzeżenie: Plik {source_file} już istnieje w folderze docelowym.")
+            continue
+        
+        # Kopiuj plik źródłowy do folderu docelowego
+        try:
+            shutil.copyfile(source_path, destination_path)
+            print(f"Plik {source_file} został skopiowany do folderu docelowego.")
+        except Exception as e:
+            print(f"Błąd podczas kopiowania pliku {source_file}: {e}")
+
 
 def find_files(directory, extension):
     """
@@ -41,15 +75,18 @@ def save_paths_to_file(folders):
         "cmake_minimum_required(VERSION 3.14)\n\n",
         "set(CMAKE_TOOLCHAIN_FILE gcc-arm-none-eabi.cmake)\n\n",
         "enable_language(ASM)\n\n",
-        "project(${PROJECT_NAME})\n\n"
+        "project(nazwa_projektu)\n\n"
     ]
 
     cmake_config2 = [
+        "set(GLOBAL_DEFINES\n-DDEBUG\n-DUSE_HAL_DRIVER \n-DSTM32L073xx\n)\n\n",
+        "set(LINKED_LIBS\n\n)\n\n",
         "\nlink_directories(\n\n)\n\n",
         "include_directories(${INCLUDE_DIRS})\n\n",
+        "include(compiler_flags.cmake)\n\n",
         "add_definitions(${GLOBAL_DEFINES})\n\n",
-        "add_executable(${CMAKE_PROJECT_NAME} ${CPP_SRCS} ${C_SRCS} ${ASM_SRCS})\n\n",
-        "link_libraries(${CMAKE_PROJECT_NAME} ${LINKED_LIBS})\n\n"
+        "add_executable(nazwa_projektu ${CPP_SRCS} ${C_SRCS} ${ASM_SRCS})\n\n",
+        "link_libraries(nazwa_projektu ${LINKED_LIBS})\n\n"
     ]
 
     root = Tk()
@@ -100,6 +137,8 @@ def save_paths_to_file(folders):
                 file.write(")\n\n")
 
             file.writelines(cmake_config2)
+
+        copy_files_to_output_directory(filepath)
         messagebox.showinfo("Zakończono operację", "Plik zapisany")
         subprocess.run(['notepad', filepath])
             
