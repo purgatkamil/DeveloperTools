@@ -38,7 +38,7 @@ def copy_files_to_output_directory(output_file_path):
 
 def find_files(directory, extension):
     """
-    Przeszukuje podany katalog i subkatalogi w poszukiwaniu plików z rozszerzeniem .h.
+    Przeszukuje podany katalog i subkatalogi w poszukiwaniu plików z rozszerzeniem extension.
     Zwraca listę względnych ścieżek do folderów zawierających znalezione pliki nagłówkowe,
     względem podanego katalogu.
     """
